@@ -37,8 +37,7 @@ func NewAdvertisementMonitor1(objectPath dbus.ObjectPath) (*AdvertisementMonitor
 }
 
 /*
-AdvertisementMonitor1 Advertisement Monitor hierarchy
-
+AdvertisementMonitor1 BlueZ D-Bus AdvertisementMonitor API documentation
 */
 type AdvertisementMonitor1 struct {
 	client                 *bluez.Client
@@ -54,95 +53,98 @@ type AdvertisementMonitor1Properties struct {
 	lock sync.RWMutex `dbus:"ignore"`
 
 	/*
-		Patterns If the Type property is set to "or_patterns", then this
-				property must exist and have at least one entry in the
-				array.
+		Patterns If the **Type** property is set to **"or_patterns"**, then this
+		property must exist and have at least one entry in the array.
 
-				The structure of a pattern contains the following:
-				uint8 start_position
-					The index in an AD data field where the search
-					should start. The beginning of an AD data field
-					is index 0.
-				uint8 AD_data_type
-					See https://www.bluetooth.com/specifications/
-					assigned-numbers/generic-access-profile/ for
-					the possible allowed value.
+		The structure of a pattern contains the following:
+
+		:uint8 start_position:
+
+			The index in an AD data field where the search hould start. The
+			beginning of an AD data field is index 0.
+
+		:uint8 AD_data_type:
+
+			See https://www.bluetooth.com/specifications/assigned-numbers/
+			generic-access-profile/ for the possible allowed value.
+
+		:array{byte} content_of_pattern:
+
+			This is the value of the pattern. The maximum length of the
+			bytes is 31.
 	*/
 	Patterns []Pattern
 
 	/*
-		RSSIHighThreshold Used in conjunction with RSSIHighTimeout to determine
-				whether a device becomes in-range. Valid range is
-				-127 to 20 (dBm), while 127 indicates unset.
+		RSSIHighThreshold Used in conjunction with RSSIHighTimeout to determine whether a device
+		becomes in-range. Valid range is -127 to 20 (dBm), while 127 indicates
+		unset.
 	*/
 	RSSIHighThreshold int16
 
 	/*
-		RSSIHighTimeout The time it takes to consider a device as in-range.
-				If this many seconds elapses while we continuously
-				receive signals at least as strong as RSSIHighThreshold,
-				a currently out-of-range device will be considered as
-				in-range (found). Valid range is 1 to 300 (seconds),
-				while 0 indicates unset.
+		RSSIHighTimeout The time it takes to consider a device as in-range. If this many
+		seconds elapses while we continuouslyreceive signals at least as strong
+		as **RSSIHighThreshold**, a currently out-of-range device will be
+		considered as in-range (found). Valid range is 1 to 300 (seconds),
+		while 0 indicates unset.
 	*/
 	RSSIHighTimeout uint16
 
 	/*
-		RSSILowThreshold Used in conjunction with RSSILowTimeout to determine
-				whether a device becomes out-of-range. Valid range is
-				-127 to 20 (dBm), while 127 indicates unset.
+		RSSILowThreshold Used in conjunction with **RSSILowTimeout** to determine whether a
+		device becomes out-of-range. Valid range is -127 to 20 (dBm), while 127
+		indicates unset.
 	*/
 	RSSILowThreshold int16
 
 	/*
-		RSSILowTimeout The time it takes to consider a device as out-of-range.
-				If this many seconds elapses without receiving any
-				signal at least as strong as RSSILowThreshold, a
-				currently in-range device will be considered as
-				out-of-range (lost). Valid range is 1 to 300 (seconds),
-				while 0 indicates unset.
+		RSSILowTimeout The time it takes to consider a device as out-of-range. If this many
+		seconds elapses without receiving any signal at least as strong as
+		**RSSILowThreshold**, a currently in-range device will be considered as
+		out-of-range (lost). Valid range is 1 to 300 (seconds), while 0
+		indicates unset.
 	*/
 	RSSILowTimeout uint16
 
 	/*
-		RSSISamplingPeriod Grouping rules on how to propagate the received
-				advertisement packets to the client. Valid range is 0 to
-				255 while 256 indicates unset.
+		RSSISamplingPeriod Grouping rules on how to propagate the received advertisement packets
+		to the client.
 
-				The meaning of this property is as follows:
-				0:
-					All advertisement packets from in-range devices
-					would be propagated.
-				255:
-					Only the first advertisement packet of in-range
-					devices would be propagated. If the device
-					becomes lost, then the first packet when it is
-					found again will also be propagated.
-				1 to 254:
-					Advertisement packets would be grouped into
-					100ms * N time period. Packets in the same group
-					will only be reported once, with the RSSI value
-					being averaged out.
+		Possible values:
 
-				Currently this is unimplemented in user space, so the
-				value is only used to be forwarded to the kernel.
+		:0:
+			All advertisement packets from in-range devices would be
+			propagated.
+
+		:255:
+			Only the first advertisement packet of in-range devices would
+			be propagated. If the device becomes lost, then the first
+			packet when it is found again will also be propagated.
+
+		:1 to 254:
+			Advertisement packets would be grouped into 100ms * N time
+			period. Packets in the same group will only be reported once,
+			with the RSSI value being averaged out.
+
+		Currently this is unimplemented in user space, so the value is only
+		used to be forwarded to the kernel.
 	*/
 	RSSISamplingPeriod uint16
 
 	/*
-		Type The type of the monitor. See SupportedMonitorTypes in
-				org.bluez.AdvertisementMonitorManager1 for the available
-				options.
+		Type The type of the monitor. See **SupportedMonitorTypes** in
+		**org.bluez.AdvertisementMonitorManager(5)** for the available options.
 	*/
 	Type string
 }
 
-//Lock access to properties
+// Lock access to properties
 func (p *AdvertisementMonitor1Properties) Lock() {
 	p.lock.Lock()
 }
 
-//Unlock access to properties
+// Unlock access to properties
 func (p *AdvertisementMonitor1Properties) Unlock() {
 	p.lock.Unlock()
 }
@@ -348,42 +350,40 @@ func (a *AdvertisementMonitor1) UnwatchProperties(ch chan *bluez.PropertyChanged
 }
 
 /*
-Release 			This gets called as a signal for a client to perform
-			clean-up when (1)a monitor cannot be activated after it
-			was exposed or (2)a monitor has been deactivated.
+Release This gets called as a signal for a client to perform clean-up when:
 
+  - Monitor cannot be activated after it was exposed
+  - Monitor has been deactivated.
 */
 func (a *AdvertisementMonitor1) Release() error {
 	return a.client.Call("Release", 0).Store()
 }
 
 /*
-Activate 			After a monitor was exposed, this gets called as a
-			signal for client to get acknowledged when a monitor
-			has been activated, so the client can expect to receive
-			calls on DeviceFound() or DeviceLost().
+Activate After a monitor was exposed, this gets called as a signal for client to
 
+	get acknowledged when a monitor has been activated, so the client can
+	expect to receive calls on **DeviceFound()** or **DeviceLost()**.
 */
 func (a *AdvertisementMonitor1) Activate() error {
 	return a.client.Call("Activate", 0).Store()
 }
 
 /*
-DeviceFound 			This gets called to notify the client of finding the
-			targeted device. Once receiving the call, the client
-			should start to monitor the corresponding device to
-			retrieve the changes on RSSI and advertisement content.
+DeviceFound This gets called to notify the client of finding the targeted device.
 
+	Once receiving the call, the client should start to monitor the
+	corresponding device to retrieve the changes on RSSI and advertisement
+	content.
 */
 func (a *AdvertisementMonitor1) DeviceFound(device dbus.ObjectPath) error {
 	return a.client.Call("DeviceFound", 0, device).Store()
 }
 
 /*
-DeviceLost 			This gets called to notify the client of losing the
-			targeted device. Once receiving this call, the client
-			should stop monitoring the corresponding device.
+DeviceLost This gets called to notify the client of losing the targeted device.
 
+	Once receiving this call, the client should stop monitoring the
 */
 func (a *AdvertisementMonitor1) DeviceLost(device dbus.ObjectPath) error {
 	return a.client.Call("DeviceLost", 0, device).Store()

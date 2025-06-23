@@ -37,8 +37,7 @@ func NewNetworkServer1(objectPath dbus.ObjectPath) (*NetworkServer1, error) {
 }
 
 /*
-NetworkServer1 Network server hierarchy
-
+NetworkServer1 BlueZ D-Bus NetworkServer API documentation
 */
 type NetworkServer1 struct {
 	client                 *bluez.Client
@@ -54,12 +53,12 @@ type NetworkServer1Properties struct {
 	lock sync.RWMutex `dbus:"ignore"`
 }
 
-//Lock access to properties
+// Lock access to properties
 func (p *NetworkServer1Properties) Lock() {
 	p.lock.Lock()
 }
 
-//Unlock access to properties
+// Unlock access to properties
 func (p *NetworkServer1Properties) Unlock() {
 	p.lock.Unlock()
 }
@@ -202,25 +201,49 @@ func (a *NetworkServer1) UnwatchProperties(ch chan *bluez.PropertyChanged) error
 }
 
 /*
-Register 			Register server for the provided UUID. Every new
-			connection to this server will be added the bridge
-			interface.
-			Valid UUIDs are "gn", "panu" or "nap".
-			Initially no network server SDP is provided. Only
-			after this method a SDP record will be available
-			and the BNEP server will be ready for incoming
-			connections.
+Register Registers server for the provided UUID.
 
+	Every new connection to this server will be added the bridge interface.
+
+	Possible uuid values:
+
+	:"panu", "00001115-0000-1000-8000-00805f9b34fb":
+
+		Personal Network User role.
+
+	:"nap", "00001116-0000-1000-8000-00805f9b34fb":
+
+		Network Access Point role.
+
+	:"gn", "00001117-0000-1000-8000-00805f9b34fb":
+
+		Group Network role.
+
+	Initially no network server SDP is provided. Only after this method a
+	SDP record will be available and the BNEP server will be ready for
+	incoming connections.
+
+	Possible errors:
+
+	:org.bluez.Error.InvalidArguments:
+	:org.bluez.Error.AlreadyExists:
+	:org.bluez.Error.Failed:
 */
 func (a *NetworkServer1) Register(uuid string, bridge string) error {
 	return a.client.Call("Register", 0, uuid, bridge).Store()
 }
 
 /*
-Unregister 			Unregister the server for provided UUID.
-			All servers will be automatically unregistered when
-			the calling application terminates.
+Unregister Unregisters the server for provided UUID which was previously
 
+	registered with **Register()** method.
+
+	All servers will be automatically unregistered when the calling
+	application terminates.
+
+	Possible errors:
+
+	:org.bluez.Error.InvalidArguments:
 */
 func (a *NetworkServer1) Unregister(uuid string) error {
 	return a.client.Call("Unregister", 0, uuid).Store()

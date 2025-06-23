@@ -37,8 +37,7 @@ func NewInput1(objectPath dbus.ObjectPath) (*Input1, error) {
 }
 
 /*
-Input1 Input hierarchy
-
+Input1 BlueZ D-Bus Input API documentation
 */
 type Input1 struct {
 	client                 *bluez.Client
@@ -54,43 +53,43 @@ type Input1Properties struct {
 	lock sync.RWMutex `dbus:"ignore"`
 
 	/*
-		ReconnectMode Determines the Connectability mode of the HID device as
-				defined by the HID Profile specification, Section 5.4.2.
+		ReconnectMode Indicates the Connectability mode of the HID device as defined by the
+		HID Profile specification, Section 5.4.2.
 
-				This mode is based in the two properties
-				HIDReconnectInitiate (see Section 5.3.4.6) and
-				HIDNormallyConnectable (see Section 5.3.4.14) which
-				define the following four possible values:
+		This mode is based in the two properties HIDReconnectInitiate (see
+		Section 5.3.4.6) and HIDNormallyConnectable (see Section 5.3.4.14) which
+		define the following four possible values:
 
-				"none"		Device and host are not required to
-						automatically restore the connection.
+		:"none":
 
-				"host"		Bluetooth HID host restores connection.
+			Device and host are not required to automatically restore the
+			connection.
 
-				"device"	Bluetooth HID device restores
-						connection.
+		:"host":
 
-				"any"		Bluetooth HID device shall attempt to
-						restore the lost connection, but
-						Bluetooth HID Host may also restore the
-						connection.
+			Bluetooth HID host restores connection.
+
+		:"device":
+
+			Bluetooth HID device restores connection.
+
+		:"any":
+
+			Bluetooth HID device shall attempt to restore the lost
+			connection, but Bluetooth HID Host may also restore the
+			connection.
 	*/
 	ReconnectMode string
 }
 
-//Lock access to properties
+// Lock access to properties
 func (p *Input1Properties) Lock() {
 	p.lock.Lock()
 }
 
-//Unlock access to properties
+// Unlock access to properties
 func (p *Input1Properties) Unlock() {
 	p.lock.Unlock()
-}
-
-// SetReconnectMode set ReconnectMode value
-func (a *Input1) SetReconnectMode(v string) error {
-	return a.SetProperty("ReconnectMode", v)
 }
 
 // GetReconnectMode get ReconnectMode value

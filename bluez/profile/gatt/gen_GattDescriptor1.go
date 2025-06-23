@@ -37,10 +37,7 @@ func NewGattDescriptor1(objectPath dbus.ObjectPath) (*GattDescriptor1, error) {
 }
 
 /*
-GattDescriptor1 Characteristic Descriptors hierarchy
-
-Local or remote GATT characteristic descriptors hierarchy.
-
+GattDescriptor1 BlueZ D-Bus GattDescriptor API documentation
 */
 type GattDescriptor1 struct {
 	client                 *bluez.Client
@@ -56,36 +53,26 @@ type GattDescriptor1Properties struct {
 	lock sync.RWMutex `dbus:"ignore"`
 
 	/*
-		Characteristic Object path of the GATT characteristic the descriptor
-				belongs to.
+		Characteristic Object path of the GATT characteristic the descriptor belongs to.
 	*/
 	Characteristic dbus.ObjectPath
 
 	/*
 		Flags Defines how the descriptor value can be used.
 
-				Possible values:
+		Possible values:
 
-					"read"
-					"write"
-					"encrypt-read"
-					"encrypt-write"
-					"encrypt-authenticated-read"
-					"encrypt-authenticated-write"
-					"secure-read" (Server Only)
-					"secure-write" (Server Only)
-					"authorize"
+		:"read":
+		:"write":
+		:"encrypt-read":
+		:"encrypt-write":
+		:"encrypt-authenticated-read":
+		:"encrypt-authenticated-write":
+		:"secure-read" (Server Only):
+		:"secure-write" (Server Only):
+		:"authorize":
 	*/
 	Flags []string
-
-	/*
-		Handle Characteristic handle. When available in the server it
-				would attempt to use to allocate into the database
-				which may fail, to auto allocate the value 0x0000
-				shall be used which will cause the allocated handle to
-				be set once registered.
-	*/
-	Handle uint16
 
 	/*
 		UUID 128-bit descriptor UUID.
@@ -93,19 +80,19 @@ type GattDescriptor1Properties struct {
 	UUID string
 
 	/*
-		Value The cached value of the descriptor. This property
-				gets updated only after a successful read request, upon
-				which a PropertiesChanged signal will be emitted.
+		Value The cached value of the descriptor. This property gets updated only
+		after a successful read request, upon which a PropertiesChanged signal
+		will be emitted.
 	*/
 	Value []byte `dbus:"emit"`
 }
 
-//Lock access to properties
+// Lock access to properties
 func (p *GattDescriptor1Properties) Lock() {
 	p.lock.Lock()
 }
 
-//Unlock access to properties
+// Unlock access to properties
 func (p *GattDescriptor1Properties) Unlock() {
 	p.lock.Unlock()
 }
@@ -126,20 +113,6 @@ func (a *GattDescriptor1) GetFlags() ([]string, error) {
 		return []string{}, err
 	}
 	return v.Value().([]string), nil
-}
-
-// SetHandle set Handle value
-func (a *GattDescriptor1) SetHandle(v uint16) error {
-	return a.SetProperty("Handle", v)
-}
-
-// GetHandle get Handle value
-func (a *GattDescriptor1) GetHandle() (uint16, error) {
-	v, err := a.GetProperty("Handle")
-	if err != nil {
-		return uint16(0), err
-	}
-	return v.Value().(uint16), nil
 }
 
 // GetUUID get UUID value
@@ -298,18 +271,36 @@ func (a *GattDescriptor1) UnwatchProperties(ch chan *bluez.PropertyChanged) erro
 }
 
 /*
-ReadValue 			Issues a request to read the value of the
-			characteristic and returns the value if the
-			operation was successful.
-			Possible options: "offset": Start offset
-					  "device": Device path (Server only)
-					  "link": Link type (Server only)
-			Possible Errors: org.bluez.Error.Failed
-					 org.bluez.Error.InProgress
-					 org.bluez.Error.NotPermitted
-					 org.bluez.Error.NotAuthorized
-					 org.bluez.Error.NotSupported
+ReadValue Issues a request to read the value of the descriptor and returns the
 
+	value if the operation was successful.
+
+	Possible options:
+
+	:uint16_t offset:
+
+		Read start offset in bytes.
+
+	:object device (server only):
+
+		Device object.
+
+	:string link:
+
+		Link type (Server only).
+
+		Possible values:
+
+		:"BR/EDR":
+		:"LE":
+
+	Possible Errors:
+
+	:org.bluez.Error.Failed:
+	:org.bluez.Error.InProgress:
+	:org.bluez.Error.NotPermitted:
+	:org.bluez.Error.NotAuthorized:
+	:org.bluez.Error.NotSupported:
 */
 func (a *GattDescriptor1) ReadValue(flags map[string]interface{}) ([]byte, error) {
 	val0 := []byte{}
@@ -318,21 +309,42 @@ func (a *GattDescriptor1) ReadValue(flags map[string]interface{}) ([]byte, error
 }
 
 /*
-WriteValue 			Issues a request to write the value of the
-			characteristic.
-			Possible options: "offset": Start offset
-					  "device": Device path (Server only)
-					  "link": Link type (Server only)
-					  "prepare-authorize": boolean Is prepare
-							       authorization
-							       request
-			Possible Errors: org.bluez.Error.Failed
-					 org.bluez.Error.InProgress
-					 org.bluez.Error.NotPermitted
-					 org.bluez.Error.InvalidValueLength
-					 org.bluez.Error.NotAuthorized
-					 org.bluez.Error.NotSupported
+WriteValue Issues a request to write the value of the descriptor.
 
+	Possible flags:
+
+	:uint16 offset:
+
+		Write start offset in bytes.
+
+	:uint16 mtu:
+
+		Exchanged MTU (Server only).
+
+	:object device:
+
+		Device path (Server only).
+
+	:string link:
+
+		Link type (Server only).
+
+		Possible values:
+
+		:"BR/EDR":
+		:"LE":
+
+	:boolean prepare-authorize:
+
+		True if prepare authorization request.
+
+	Possible Errors:
+
+	:org.bluez.Error.Failed:
+	:org.bluez.Error.InProgress:
+	:org.bluez.Error.NotPermitted:
+	:org.bluez.Error.InvalidValueLength:
+	:org.bluez.Error.NotAuthorized:
 */
 func (a *GattDescriptor1) WriteValue(value []byte, flags map[string]interface{}) error {
 	return a.client.Call("WriteValue", 0, value, flags).Store()

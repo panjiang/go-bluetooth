@@ -37,14 +37,7 @@ func NewLEAdvertisement1(objectPath dbus.ObjectPath) (*LEAdvertisement1, error) 
 }
 
 /*
-LEAdvertisement1 LE Advertisement Data hierarchy
-
-Specifies the Advertisement Data to be broadcast and some advertising
-parameters.  Properties which are not present will not be included in the
-data.  Required advertisement data types will always be included.
-All UUIDs are 128-bit versions in the API, and 16 or 32-bit
-versions of the same UUID will be used in the advertising data as appropriate.
-
+LEAdvertisement1 BlueZ D-Bus LEAdvertisement API documentation
 */
 type LEAdvertisement1 struct {
 	client                 *bluez.Client
@@ -62,155 +55,91 @@ type LEAdvertisement1Properties struct {
 	/*
 		Appearance Appearance to be used in the advertising report.
 
-				Possible values: as found on GAP Service.
+		Possible values: as found on GAP Service.
 	*/
 	Appearance uint16
 
 	/*
-		Data Advertising Type to include in the Advertising
-				Data. Key is the advertising type and value is the
-				data as byte array.
-
-				Note: Types already handled by other properties shall
-				not be used.
-
-				Possible values:
-					<type> <byte array>
-					...
-
-				Example:
-					<Transport Discovery> <Organization Flags...>
-					0x26                   0x01         0x01...
+		Data
 	*/
 	Data map[byte]interface{}
 
 	/*
-		Discoverable Advertise as general discoverable. When present this
-				will override adapter Discoverable property.
-
-				Note: This property shall not be set when Type is set
-				to broadcast.
-	*/
-	Discoverable bool
-
-	/*
-		DiscoverableTimeout The discoverable timeout in seconds. A value of zero
-				means that the timeout is disabled and it will stay in
-				discoverable/limited mode forever.
-
-				Note: This property shall not be set when Type is set
-				to broadcast.
-	*/
-	DiscoverableTimeout uint16
-
-	/*
-		Duration Rotation duration of the advertisement in seconds. If
-				there are other applications advertising no duration is
-				set the default is 2 seconds.
+		Duration Rotation duration of the advertisement in seconds. If there are other
+		applications advertising no duration is set the default is 2 seconds.
 	*/
 	Duration uint16
 
 	/*
-		Includes List of features to be included in the advertising
-				packet.
+		Includes List of features to be included in the advertising packet.
 
-				Possible values: as found on
-						LEAdvertisingManager.SupportedIncludes
+		Possible values:
+
+		See **org.bluez.LEAdvertisingManager(5)** **SupportedIncludes**
+		property.
 	*/
 	Includes []string
 
 	/*
-		LocalName Local name to be used in the advertising report. If the
-				string is too big to fit into the packet it will be
-				truncated.
+		LocalName Local name to be used in the advertising report. If the string is too
+		big to fit into the packet it will be truncated.
 
-				If this property is available 'local-name' cannot be
-				present in the Includes.
+		If this property is available 'local-name' cannot be present in the
+		**Includes**.
 	*/
 	LocalName string
 
 	/*
-		ManufacturerData Manufactuer Data fields to include in
-				the Advertising Data.  Keys are the Manufacturer ID
-				to associate with the data.
+		ManufacturerData Manufacturer Data fields to include in the Advertising Data.  Keys are
+		the Manufacturer ID to associate with the data.
 	*/
 	ManufacturerData map[uint16]interface{}
 
 	/*
-		MaxInterval Maximum advertising interval to be used by the
-				advertising set, in milliseconds. Acceptable values
-				are in the range [20ms, 10,485s]. If the provided
-				MinInterval is larger than the provided MaxInterval,
-				the registration will return failure.
-	*/
-	MaxInterval uint32
-
-	/*
-		MinInterval Minimum advertising interval to be used by the
-				advertising set, in milliseconds. Acceptable values
-				are in the range [20ms, 10,485s]. If the provided
-				MinInterval is larger than the provided MaxInterval,
-				the registration will return failure.
-	*/
-	MinInterval uint32
-
-	/*
-		SecondaryChannel Secondary channel to be used. Primary channel is
-				always set to "1M" except when "Coded" is set.
-
-				Possible value: "1M" (default)
-						"2M"
-						"Coded"
+		SecondaryChannel
 	*/
 	SecondaryChannel string `dbus:"omitEmpty"`
 
 	/*
-		ServiceData Service Data elements to include. The keys are the
-				UUID to associate with the data.
+		ServiceData Service Data elements to include. The keys are the UUID to associate
+		with the data.
 	*/
 	ServiceData map[string]interface{}
 
 	/*
-		ServiceUUIDs List of UUIDs to include in the "Service UUID" field of
-				the Advertising Data.
+		ServiceUUIDs List of UUIDs to include in the "Service UUID" field of the Advertising
+		Data.
 	*/
 	ServiceUUIDs []string
 
 	/*
-		SolicitUUIDs Array of UUIDs to include in "Service Solicitation"
-				Advertisement Data.
+		SolicitUUIDs Array of UUIDs to include in "Service Solicitation" Advertisement Data.
 	*/
 	SolicitUUIDs []string
 
 	/*
-		Timeout Timeout of the advertisement in seconds. This defines
-				the lifetime of the advertisement.
+		Timeout Timeout of the advertisement in seconds. This defines the lifetime of
+		the advertisement.
 	*/
 	Timeout uint16
 
 	/*
-		TxPower Requested transmission power of this advertising set.
-				The provided value is used only if the "CanSetTxPower"
-				feature is enabled on the Advertising Manager. The
-				provided value must be in range [-127 to +20], where
-				units are in dBm.
-	*/
-	TxPower int16
-
-	/*
 		Type Determines the type of advertising packet requested.
 
-				Possible values: "broadcast" or "peripheral"
+		Possible values:
+
+		:"broadcast":
+		:"peripheral":
 	*/
 	Type string
 }
 
-//Lock access to properties
+// Lock access to properties
 func (p *LEAdvertisement1Properties) Lock() {
 	p.lock.Lock()
 }
 
-//Unlock access to properties
+// Unlock access to properties
 func (p *LEAdvertisement1Properties) Unlock() {
 	p.lock.Unlock()
 }
@@ -241,34 +170,6 @@ func (a *LEAdvertisement1) GetData() (map[byte]interface{}, error) {
 		return map[byte]interface{}{}, err
 	}
 	return v.Value().(map[byte]interface{}), nil
-}
-
-// SetDiscoverable set Discoverable value
-func (a *LEAdvertisement1) SetDiscoverable(v bool) error {
-	return a.SetProperty("Discoverable", v)
-}
-
-// GetDiscoverable get Discoverable value
-func (a *LEAdvertisement1) GetDiscoverable() (bool, error) {
-	v, err := a.GetProperty("Discoverable")
-	if err != nil {
-		return false, err
-	}
-	return v.Value().(bool), nil
-}
-
-// SetDiscoverableTimeout set DiscoverableTimeout value
-func (a *LEAdvertisement1) SetDiscoverableTimeout(v uint16) error {
-	return a.SetProperty("DiscoverableTimeout", v)
-}
-
-// GetDiscoverableTimeout get DiscoverableTimeout value
-func (a *LEAdvertisement1) GetDiscoverableTimeout() (uint16, error) {
-	v, err := a.GetProperty("DiscoverableTimeout")
-	if err != nil {
-		return uint16(0), err
-	}
-	return v.Value().(uint16), nil
 }
 
 // SetDuration set Duration value
@@ -325,34 +226,6 @@ func (a *LEAdvertisement1) GetManufacturerData() (map[uint16]interface{}, error)
 		return map[uint16]interface{}{}, err
 	}
 	return v.Value().(map[uint16]interface{}), nil
-}
-
-// SetMaxInterval set MaxInterval value
-func (a *LEAdvertisement1) SetMaxInterval(v uint32) error {
-	return a.SetProperty("MaxInterval", v)
-}
-
-// GetMaxInterval get MaxInterval value
-func (a *LEAdvertisement1) GetMaxInterval() (uint32, error) {
-	v, err := a.GetProperty("MaxInterval")
-	if err != nil {
-		return uint32(0), err
-	}
-	return v.Value().(uint32), nil
-}
-
-// SetMinInterval set MinInterval value
-func (a *LEAdvertisement1) SetMinInterval(v uint32) error {
-	return a.SetProperty("MinInterval", v)
-}
-
-// GetMinInterval get MinInterval value
-func (a *LEAdvertisement1) GetMinInterval() (uint32, error) {
-	v, err := a.GetProperty("MinInterval")
-	if err != nil {
-		return uint32(0), err
-	}
-	return v.Value().(uint32), nil
 }
 
 // SetSecondaryChannel set SecondaryChannel value
@@ -423,25 +296,6 @@ func (a *LEAdvertisement1) GetTimeout() (uint16, error) {
 		return uint16(0), err
 	}
 	return v.Value().(uint16), nil
-}
-
-// SetTxPower set TxPower value
-func (a *LEAdvertisement1) SetTxPower(v int16) error {
-	return a.SetProperty("TxPower", v)
-}
-
-// GetTxPower get TxPower value
-func (a *LEAdvertisement1) GetTxPower() (int16, error) {
-	v, err := a.GetProperty("TxPower")
-	if err != nil {
-		return int16(0), err
-	}
-	return v.Value().(int16), nil
-}
-
-// SetType set Type value
-func (a *LEAdvertisement1) SetType(v string) error {
-	return a.SetProperty("Type", v)
 }
 
 // GetType get Type value
@@ -591,12 +445,10 @@ func (a *LEAdvertisement1) UnwatchProperties(ch chan *bluez.PropertyChanged) err
 }
 
 /*
-Release 			This method gets called when the service daemon
-			removes the Advertisement. A client can use it to do
-			cleanup tasks. There is no need to call
-			UnregisterAdvertisement because when this method gets
-			called it has already been unregistered.
+Release This method gets called when the service daemon removes the
 
+	Advertisement. A client can use it to do cleanup tasks. There is no
+	need to call **UnregisterAdvertisement()** because when this method
 */
 func (a *LEAdvertisement1) Release() error {
 	return a.client.Call("Release", 0).Store()

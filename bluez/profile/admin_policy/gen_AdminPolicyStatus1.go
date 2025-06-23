@@ -37,8 +37,7 @@ func NewAdminPolicyStatus1(objectPath dbus.ObjectPath) (*AdminPolicyStatus1, err
 }
 
 /*
-AdminPolicyStatus1 Admin Policy Status hierarchy
-
+AdminPolicyStatus1 BlueZ D-Bus AdminPolicyStatus API documentation
 */
 type AdminPolicyStatus1 struct {
 	client                 *bluez.Client
@@ -54,24 +53,34 @@ type AdminPolicyStatus1Properties struct {
 	lock sync.RWMutex `dbus:"ignore"`
 
 	/*
+		IsAffectedByPolicy Indicate if there is any auto-connect profile in this device is not
+		allowed by admin policy.
+	*/
+	IsAffectedByPolicy bool
+
+	/*
 		ServiceAllowList Current value of service allow list.
 	*/
 	ServiceAllowList []string
 }
 
-//Lock access to properties
+// Lock access to properties
 func (p *AdminPolicyStatus1Properties) Lock() {
 	p.lock.Lock()
 }
 
-//Unlock access to properties
+// Unlock access to properties
 func (p *AdminPolicyStatus1Properties) Unlock() {
 	p.lock.Unlock()
 }
 
-// SetServiceAllowList set ServiceAllowList value
-func (a *AdminPolicyStatus1) SetServiceAllowList(v []string) error {
-	return a.SetProperty("ServiceAllowList", v)
+// GetIsAffectedByPolicy get IsAffectedByPolicy value
+func (a *AdminPolicyStatus1) GetIsAffectedByPolicy() (bool, error) {
+	v, err := a.GetProperty("IsAffectedByPolicy")
+	if err != nil {
+		return false, err
+	}
+	return v.Value().(bool), nil
 }
 
 // GetServiceAllowList get ServiceAllowList value

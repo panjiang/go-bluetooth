@@ -38,8 +38,7 @@ func NewBatteryProvider1(servicePath string, objectPath dbus.ObjectPath) (*Batte
 }
 
 /*
-BatteryProvider1 Battery Provider hierarchy
-
+BatteryProvider1 BlueZ D-Bus BatteryProvider API documentation
 */
 type BatteryProvider1 struct {
 	client                 *bluez.Client
@@ -60,19 +59,14 @@ type BatteryProvider1Properties struct {
 	Device dbus.ObjectPath
 }
 
-//Lock access to properties
+// Lock access to properties
 func (p *BatteryProvider1Properties) Lock() {
 	p.lock.Lock()
 }
 
-//Unlock access to properties
+// Unlock access to properties
 func (p *BatteryProvider1Properties) Unlock() {
 	p.lock.Unlock()
-}
-
-// SetDevice set Device value
-func (a *BatteryProvider1) SetDevice(v dbus.ObjectPath) error {
-	return a.SetProperty("Device", v)
 }
 
 // GetDevice get Device value

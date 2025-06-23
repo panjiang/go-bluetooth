@@ -37,8 +37,7 @@ func NewBattery1(objectPath dbus.ObjectPath) (*Battery1, error) {
 }
 
 /*
-Battery1 Battery hierarchy
-
+Battery1 BlueZ D-Bus Battery API documentation
 */
 type Battery1 struct {
 	client                 *bluez.Client
@@ -59,29 +58,26 @@ type Battery1Properties struct {
 	Percentage byte
 
 	/*
-		Source Describes where the battery information comes from
-				This property is informational only and may be useful
-				for debugging purposes.
-				Providers from BatteryProvider1 may make use of this
-				property to indicate where the battery report comes from
-				(e.g. "HFP 1.7", "HID", or the profile UUID).
+		Source Describes where the battery information comes from.
+
+		This property is informational only and may be useful for debugging
+		purposes.
+
+		Providers from **org.bluez.BatteryProvider(5)** may make use
+		of this property to indicate where the battery report comes from
+		(e.g. "HFP 1.7", "HID", or the profile UUID).
 	*/
 	Source string
 }
 
-//Lock access to properties
+// Lock access to properties
 func (p *Battery1Properties) Lock() {
 	p.lock.Lock()
 }
 
-//Unlock access to properties
+// Unlock access to properties
 func (p *Battery1Properties) Unlock() {
 	p.lock.Unlock()
-}
-
-// SetPercentage set Percentage value
-func (a *Battery1) SetPercentage(v byte) error {
-	return a.SetProperty("Percentage", v)
 }
 
 // GetPercentage get Percentage value
@@ -91,11 +87,6 @@ func (a *Battery1) GetPercentage() (byte, error) {
 		return byte(0), err
 	}
 	return v.Value().(byte), nil
-}
-
-// SetSource set Source value
-func (a *Battery1) SetSource(v string) error {
-	return a.SetProperty("Source", v)
 }
 
 // GetSource get Source value

@@ -13,11 +13,12 @@ import (
 
 var MediaEndpoint1Interface = "org.bluez.MediaEndpoint1"
 
-// NewMediaEndpoint1Server create a new instance of MediaEndpoint1
+// NewMediaEndpoint1 create a new instance of MediaEndpoint1
 //
 // Args:
-// - servicePath: unique name
-func NewMediaEndpoint1Server(servicePath string, objectPath dbus.ObjectPath) (*MediaEndpoint1, error) {
+// - servicePath: unique name (Server role)
+// - objectPath: freely definable (Server role)
+func NewMediaEndpoint1(servicePath string, objectPath dbus.ObjectPath) (*MediaEndpoint1, error) {
 	a := new(MediaEndpoint1)
 	a.client = bluez.NewClient(
 		&bluez.Config{
@@ -36,32 +37,8 @@ func NewMediaEndpoint1Server(servicePath string, objectPath dbus.ObjectPath) (*M
 	return a, nil
 }
 
-// NewMediaEndpoint1Client create a new instance of MediaEndpoint1
-//
-// Args:
-
-func NewMediaEndpoint1Client(objectPath dbus.ObjectPath) (*MediaEndpoint1, error) {
-	a := new(MediaEndpoint1)
-	a.client = bluez.NewClient(
-		&bluez.Config{
-			Name:  "org.bluez",
-			Iface: MediaEndpoint1Interface,
-			Path:  dbus.ObjectPath(objectPath),
-			Bus:   bluez.SystemBus,
-		},
-	)
-	a.Properties = new(MediaEndpoint1Properties)
-
-	_, err := a.GetProperties()
-	if err != nil {
-		return nil, err
-	}
-	return a, nil
-}
-
 /*
-MediaEndpoint1 MediaEndpoint1 hierarchy
-
+MediaEndpoint1 BlueZ D-Bus MediaEndpoint API documentation
 */
 type MediaEndpoint1 struct {
 	client                 *bluez.Client
@@ -77,15 +54,15 @@ type MediaEndpoint1Properties struct {
 	lock sync.RWMutex `dbus:"ignore"`
 
 	/*
-		Capabilities Capabilities blob, it is used as it is so the size and
-				byte order must match.
+		Capabilities Capabilities blob, it is used as it is so the size and byte order must
+		match.
 	*/
 	Capabilities []byte
 
 	/*
 		Codec Assigned number of codec that the endpoint implements.
-				The values should match the profile specification which
-				is indicated by the UUID.
+		The values should match the profile specification which is indicated by
+		the UUID.
 	*/
 	Codec byte
 
@@ -105,19 +82,14 @@ type MediaEndpoint1Properties struct {
 	UUID string
 }
 
-//Lock access to properties
+// Lock access to properties
 func (p *MediaEndpoint1Properties) Lock() {
 	p.lock.Lock()
 }
 
-//Unlock access to properties
+// Unlock access to properties
 func (p *MediaEndpoint1Properties) Unlock() {
 	p.lock.Unlock()
-}
-
-// SetCapabilities set Capabilities value
-func (a *MediaEndpoint1) SetCapabilities(v []byte) error {
-	return a.SetProperty("Capabilities", v)
 }
 
 // GetCapabilities get Capabilities value
@@ -129,11 +101,6 @@ func (a *MediaEndpoint1) GetCapabilities() ([]byte, error) {
 	return v.Value().([]byte), nil
 }
 
-// SetCodec set Codec value
-func (a *MediaEndpoint1) SetCodec(v byte) error {
-	return a.SetProperty("Codec", v)
-}
-
 // GetCodec get Codec value
 func (a *MediaEndpoint1) GetCodec() (byte, error) {
 	v, err := a.GetProperty("Codec")
@@ -141,11 +108,6 @@ func (a *MediaEndpoint1) GetCodec() (byte, error) {
 		return byte(0), err
 	}
 	return v.Value().(byte), nil
-}
-
-// SetDelayReporting set DelayReporting value
-func (a *MediaEndpoint1) SetDelayReporting(v bool) error {
-	return a.SetProperty("DelayReporting", v)
 }
 
 // GetDelayReporting get DelayReporting value
@@ -157,11 +119,6 @@ func (a *MediaEndpoint1) GetDelayReporting() (bool, error) {
 	return v.Value().(bool), nil
 }
 
-// SetDevice set Device value
-func (a *MediaEndpoint1) SetDevice(v dbus.ObjectPath) error {
-	return a.SetProperty("Device", v)
-}
-
 // GetDevice get Device value
 func (a *MediaEndpoint1) GetDevice() (dbus.ObjectPath, error) {
 	v, err := a.GetProperty("Device")
@@ -169,11 +126,6 @@ func (a *MediaEndpoint1) GetDevice() (dbus.ObjectPath, error) {
 		return dbus.ObjectPath(""), err
 	}
 	return v.Value().(dbus.ObjectPath), nil
-}
-
-// SetUUID set UUID value
-func (a *MediaEndpoint1) SetUUID(v string) error {
-	return a.SetProperty("UUID", v)
 }
 
 // GetUUID get UUID value
@@ -323,26 +275,44 @@ func (a *MediaEndpoint1) UnwatchProperties(ch chan *bluez.PropertyChanged) error
 }
 
 /*
-SetConfiguration 			Set configuration for the transport.
-			For client role transport must be set with a server
-			endpoint oject which will be configured and the
-			properties must contain the following properties:
-				array{byte} Capabilities
+SetConfiguration Set configuration for the transport.
 
+	:object transport:
+
+		Configured transport object.
+
+	:dict properties:
+
+		Configured **org.bluez.MediaTransport(5)** properties.
+
+	For client role transport must be set with a server endpoint
+	object which will be configured and the properties must
+	contain the following properties:
+
+	:array{byte} Capabilities [Mandatory]:
+
+		See Capabilities property.
+
+	:array{byte} Metadata [ISO only]:
+
+		See Metadata property.
+
+	:dict QoS [ISO only]:
+
+		See **org.bluez.MediaTransport(5)** QoS property.
 */
 func (a *MediaEndpoint1) SetConfiguration(transport dbus.ObjectPath, properties map[string]interface{}) error {
 	return a.client.Call("SetConfiguration", 0, transport, properties).Store()
 }
 
 /*
-SelectConfiguration 			Select preferable configuration from the supported
-			capabilities.
-			Returns a configuration which can be used to setup
-			a transport.
-			Note: There is no need to cache the selected
-			configuration since on success the configuration is
-			send back as parameter of SetConfiguration.
+SelectConfiguration Select preferable configuration from the supported capabilities.
 
+	Returns a configuration which can be used to setup a transport, see
+	**org.bluez.MediaTransport(5)** for possible values.
+
+	Note: There is no need to cache the selected configuration since on
+	success the configuration is send back as parameter of SetConfiguration.
 */
 func (a *MediaEndpoint1) SelectConfiguration(capabilities []byte) ([]byte, error) {
 	val0 := []byte{}
@@ -351,20 +321,60 @@ func (a *MediaEndpoint1) SelectConfiguration(capabilities []byte) ([]byte, error
 }
 
 /*
-ClearConfiguration 			Clear transport configuration.
+SelectProperties Select BAP unicast configuration from the supported capabilities:
 
+	:object Endpoint:
+
+	:array{byte} Capabilities:
+
+	:array{byte} Metadata:
+
+	:uint32 Locations:
+
+	:uint32_t ChannelAllocation:
+
+	:dict QoS:
+
+		:byte Framing:
+		:byte PHY:
+		:uint16 MaximumLatency:
+		:uint32 MinimumDelay:
+		:uint32 MaximumDelay:
+		:uint32 PreferredMinimumDelay:
+		:uint32 PreferredMaximumDelay:
+
+	See `MediaEndpoint Properties`_ for their possible values.
+
+	Returns a configuration which can be used to setup a transport:
+
+	:array{byte} Capabilities:
+	:array{byte} Metadata [optional]:
+	:dict QoS:
+
+	See `SetConfiguration`_ for their possible values.
+
+	Note: There is no need to cache the selected properties since on
+	success the configuration is send back as parameter of SetConfiguration.
+*/
+func (a *MediaEndpoint1) SelectProperties(capabilities map[string]interface{}) (map[string]interface{}, error) {
+	var val0 map[string]interface{}
+	err := a.client.Call("SelectProperties", 0, capabilities).Store(&val0)
+	return val0, err
+}
+
+/*
+ClearConfiguration Clear transport configuration.
 */
 func (a *MediaEndpoint1) ClearConfiguration(transport dbus.ObjectPath) error {
 	return a.client.Call("ClearConfiguration", 0, transport).Store()
 }
 
 /*
-Release 			This method gets called when the service daemon
-			unregisters the endpoint. An endpoint can use it to do
-			cleanup tasks. There is no need to unregister the
-			endpoint, because when this method gets called it has
-			already been unregistered.
+Release This method gets called when the service daemon unregisters the
 
+	endpoint. An endpoint can use it to do cleanup tasks. There is no need
+	to unregister the endpoint, because when this method gets called it has
+	already been unregistered.
 */
 func (a *MediaEndpoint1) Release() error {
 	return a.client.Call("Release", 0).Store()

@@ -37,17 +37,7 @@ func NewBatteryProviderManager1(objectPath dbus.ObjectPath) (*BatteryProviderMan
 }
 
 /*
-BatteryProviderManager1 Battery Provider Manager hierarchy
-A battery provider starts by registering itself as a battery provider with the
-RegisterBatteryProvider method passing an object path as the provider ID. Then,
-it can start exposing org.bluez.BatteryProvider1 objects having the path
-starting with the given provider ID. It can also remove objects at any time.
-The objects and their properties exposed by battery providers will be reflected
-on org.bluez.Battery1 interface.
-
-BlueZ will stop monitoring these exposed and removed objects after
-UnregisterBatteryProvider is called for that provider ID.
-
+BatteryProviderManager1 BlueZ D-Bus BatteryProviderManager API documentation
 */
 type BatteryProviderManager1 struct {
 	client                 *bluez.Client
@@ -63,12 +53,12 @@ type BatteryProviderManager1Properties struct {
 	lock sync.RWMutex `dbus:"ignore"`
 }
 
-//Lock access to properties
+// Lock access to properties
 func (p *BatteryProviderManager1Properties) Lock() {
 	p.lock.Lock()
 }
 
-//Unlock access to properties
+// Unlock access to properties
 func (p *BatteryProviderManager1Properties) Unlock() {
 	p.lock.Unlock()
 }
@@ -211,20 +201,19 @@ func (a *BatteryProviderManager1) UnwatchProperties(ch chan *bluez.PropertyChang
 }
 
 /*
-RegisterBatteryProvider 			This registers a battery provider. A registered
-			battery provider can then expose objects with
-			org.bluez.BatteryProvider1 interface described below.
+RegisterBatteryProvider Registers a battery provider. A registered battery provider can then
 
+	expose objects with **org.bluez.BatteryProvider(5)** interface.
 */
 func (a *BatteryProviderManager1) RegisterBatteryProvider(provider dbus.ObjectPath) error {
 	return a.client.Call("RegisterBatteryProvider", 0, provider).Store()
 }
 
 /*
-UnregisterBatteryProvider 			This unregisters a battery provider. After
-			unregistration, the BatteryProvider1 objects provided
-			by this client are ignored by BlueZ.
+UnregisterBatteryProvider Unregisters a battery provider previously registered with
 
+	**RegisterBatteryProvider()**. After unregistration, the
+	**org.bluez.BatteryProvider(5)** objects provided by this client are
 */
 func (a *BatteryProviderManager1) UnregisterBatteryProvider(provider dbus.ObjectPath) error {
 	return a.client.Call("UnregisterBatteryProvider", 0, provider).Store()

@@ -37,8 +37,7 @@ func NewNetwork1(objectPath dbus.ObjectPath) (*Network1, error) {
 }
 
 /*
-Network1 Network hierarchy
-
+Network1 BlueZ D-Bus Network API documentation
 */
 type Network1 struct {
 	client                 *bluez.Client
@@ -69,19 +68,14 @@ type Network1Properties struct {
 	UUID string
 }
 
-//Lock access to properties
+// Lock access to properties
 func (p *Network1Properties) Lock() {
 	p.lock.Lock()
 }
 
-//Unlock access to properties
+// Unlock access to properties
 func (p *Network1Properties) Unlock() {
 	p.lock.Unlock()
-}
-
-// SetConnected set Connected value
-func (a *Network1) SetConnected(v bool) error {
-	return a.SetProperty("Connected", v)
 }
 
 // GetConnected get Connected value
@@ -93,11 +87,6 @@ func (a *Network1) GetConnected() (bool, error) {
 	return v.Value().(bool), nil
 }
 
-// SetInterface set Interface value
-func (a *Network1) SetInterface(v string) error {
-	return a.SetProperty("Interface", v)
-}
-
 // GetInterface get Interface value
 func (a *Network1) GetInterface() (string, error) {
 	v, err := a.GetProperty("Interface")
@@ -105,11 +94,6 @@ func (a *Network1) GetInterface() (string, error) {
 		return "", err
 	}
 	return v.Value().(string), nil
-}
-
-// SetUUID set UUID value
-func (a *Network1) SetUUID(v string) error {
-	return a.SetProperty("UUID", v)
 }
 
 // GetUUID get UUID value
@@ -259,18 +243,32 @@ func (a *Network1) UnwatchProperties(ch chan *bluez.PropertyChanged) error {
 }
 
 /*
-Connect 			Connect to the network device and return the network
-			interface name. Examples of the interface name are
-			bnep0, bnep1 etc.
-			uuid can be either one of "gn", "panu" or "nap" (case
-			insensitive) or a traditional string representation of
-			UUID or a hexadecimal number.
-			The connection will be closed and network device
-			released either upon calling Disconnect() or when
-			the client disappears from the message bus.
-			Possible errors: org.bluez.Error.AlreadyConnected
-					 org.bluez.Error.ConnectionAttemptFailed
+Connect Connects to the network device and return the network interface name.
 
+	Possible uuid values:
+
+	:"panu", "00001115-0000-1000-8000-00805f9b34fb":
+
+		Personal Network User role.
+
+	:"nap", "00001116-0000-1000-8000-00805f9b34fb":
+
+		Network Access Point role.
+
+	:"gn", "00001117-0000-1000-8000-00805f9b34fb":
+
+		Group Network role.
+
+	The connection will be closed and network device released either upon
+	calling **Disconnect()** or when the client disappears from the
+	message bus.
+
+	Possible errors:
+
+	:org.bluez.Error.InvalidArguments:
+	:org.bluez.Error.NotSupported:
+	:org.bluez.Error.InProgress:
+	:org.bluez.Error.Failed:
 */
 func (a *Network1) Connect(uuid string) (string, error) {
 	var val0 string
@@ -279,11 +277,14 @@ func (a *Network1) Connect(uuid string) (string, error) {
 }
 
 /*
-Disconnect 			Disconnect from the network device.
-			To abort a connection attempt in case of errors or
-			timeouts in the client it is fine to call this method.
-			Possible errors: org.bluez.Error.Failed
+Disconnect Disconnects from the network device.
 
+	To abort a connection attempt in case of errors or timeouts in the
+	client it is fine to call this method.
+
+	Possible errors:
+
+	:org.bluez.Error.Failed:
 */
 func (a *Network1) Disconnect() error {
 	return a.client.Call("Disconnect", 0).Store()

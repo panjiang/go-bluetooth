@@ -7,30 +7,10 @@ import (
 )
 
 var (
-	// NotReady map to org.bluez.Error.NotReady
-	ErrNotReady = dbus.Error{
-		Name: "org.bluez.Error.NotReady",
-		Body: []interface{}{"NotReady"},
-	}
 	// InvalidArguments map to org.bluez.Error.InvalidArguments
 	ErrInvalidArguments = dbus.Error{
 		Name: "org.bluez.Error.InvalidArguments",
 		Body: []interface{}{"InvalidArguments"},
-	}
-	// Failed map to org.bluez.Error.Failed
-	ErrFailed = dbus.Error{
-		Name: "org.bluez.Error.Failed",
-		Body: []interface{}{"Failed"},
-	}
-	// DoesNotExist map to org.bluez.Error.DoesNotExist
-	ErrDoesNotExist = dbus.Error{
-		Name: "org.bluez.Error.DoesNotExist",
-		Body: []interface{}{"DoesNotExist"},
-	}
-	// Rejected map to org.bluez.Error.Rejected
-	ErrRejected = dbus.Error{
-		Name: "org.bluez.Error.Rejected",
-		Body: []interface{}{"Rejected"},
 	}
 	// NotConnected map to org.bluez.Error.NotConnected
 	ErrNotConnected = dbus.Error{
@@ -42,24 +22,94 @@ var (
 		Name: "org.bluez.Error.NotAcquired",
 		Body: []interface{}{"NotAcquired"},
 	}
+	// NotReady map to org.bluez.Error.NotReady
+	ErrNotReady = dbus.Error{
+		Name: "org.bluez.Error.NotReady",
+		Body: []interface{}{"NotReady"},
+	}
+	// Failed map to org.bluez.Error.Failed
+	ErrFailed = dbus.Error{
+		Name: "org.bluez.Error.Failed",
+		Body: []interface{}{"Failed"},
+	}
+	// AlreadyExists map to org.bluez.Error.AlreadyExists
+	ErrAlreadyExists = dbus.Error{
+		Name: "org.bluez.Error.AlreadyExists",
+		Body: []interface{}{"AlreadyExists"},
+	}
 	// NotSupported map to org.bluez.Error.NotSupported
 	ErrNotSupported = dbus.Error{
 		Name: "org.bluez.Error.NotSupported",
 		Body: []interface{}{"NotSupported"},
 	}
-	// NotAuthorized map to org.bluez.Error.NotAuthorized
-	ErrNotAuthorized = dbus.Error{
-		Name: "org.bluez.Error.NotAuthorized",
-		Body: []interface{}{"NotAuthorized"},
+	// Rejected map to org.bluez.Error.Rejected
+	ErrRejected = dbus.Error{
+		Name: "org.bluez.Error.Rejected",
+		Body: []interface{}{"Rejected"},
+	}
+	// InProgress map to org.bluez.Error.InProgress
+	ErrInProgress = dbus.Error{
+		Name: "org.bluez.Error.InProgress",
+		Body: []interface{}{"InProgress"},
 	}
 	// NotAvailable map to org.bluez.Error.NotAvailable
 	ErrNotAvailable = dbus.Error{
 		Name: "org.bluez.Error.NotAvailable",
 		Body: []interface{}{"NotAvailable"},
 	}
-	// AlreadyConnected map to org.bluez.Error.AlreadyConnected
-	ErrAlreadyConnected = dbus.Error{
-		Name: "org.bluez.Error.AlreadyConnected",
-		Body: []interface{}{"AlreadyConnected"},
+	// AuthenticationCanceled map to org.bluez.Error.AuthenticationCanceled
+	ErrAuthenticationCanceled = dbus.Error{
+		Name: "org.bluez.Error.AuthenticationCanceled",
+		Body: []interface{}{"AuthenticationCanceled"},
+	}
+	// AuthenticationFailed map to org.bluez.Error.AuthenticationFailed
+	ErrAuthenticationFailed = dbus.Error{
+		Name: "org.bluez.Error.AuthenticationFailed",
+		Body: []interface{}{"AuthenticationFailed"},
+	}
+	// AuthenticationRejected map to org.bluez.Error.AuthenticationRejected
+	ErrAuthenticationRejected = dbus.Error{
+		Name: "org.bluez.Error.AuthenticationRejected",
+		Body: []interface{}{"AuthenticationRejected"},
+	}
+	// AuthenticationTimeout map to org.bluez.Error.AuthenticationTimeout
+	ErrAuthenticationTimeout = dbus.Error{
+		Name: "org.bluez.Error.AuthenticationTimeout",
+		Body: []interface{}{"AuthenticationTimeout"},
+	}
+	// ObexRejected map to org.bluez.obex.Error.Rejected
+	ErrObexRejected = dbus.Error{
+		Name: "org.bluez.obex.Error.Rejected",
+		Body: []interface{}{"ObexRejected"},
+	}
+	// ObexInvalidArguments map to org.bluez.obex.Error.InvalidArguments
+	ErrObexInvalidArguments = dbus.Error{
+		Name: "org.bluez.obex.Error.InvalidArguments",
+		Body: []interface{}{"ObexInvalidArguments"},
+	}
+	// ObexForbidden map to org.bluez.obex.Error.Forbidden
+	ErrObexForbidden = dbus.Error{
+		Name: "org.bluez.obex.Error.Forbidden",
+		Body: []interface{}{"ObexForbidden"},
+	}
+	// ObexNotSupported map to org.bluez.obex.Error.NotSupported
+	ErrObexNotSupported = dbus.Error{
+		Name: "org.bluez.obex.Error.NotSupported",
+		Body: []interface{}{"ObexNotSupported"},
+	}
+	// ObexNotAuthorized map to org.bluez.obex.Error.NotAuthorized
+	ErrObexNotAuthorized = dbus.Error{
+		Name: "org.bluez.obex.Error.NotAuthorized",
+		Body: []interface{}{"ObexNotAuthorized"},
+	}
+	// ObexInProgress map to org.bluez.obex.Error.InProgress
+	ErrObexInProgress = dbus.Error{
+		Name: "org.bluez.obex.Error.InProgress",
+		Body: []interface{}{"ObexInProgress"},
+	}
+	// ObexNotInProgress map to org.bluez.obex.Error.NotInProgress
+	ErrObexNotInProgress = dbus.Error{
+		Name: "org.bluez.obex.Error.NotInProgress",
+		Body: []interface{}{"ObexNotInProgress"},
 	}
 )

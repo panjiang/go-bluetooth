@@ -16,8 +16,8 @@ var MediaFolder1Interface = "org.bluez.MediaFolder1"
 // NewMediaFolder1 create a new instance of MediaFolder1
 //
 // Args:
-// - servicePath: unique name
-// - objectPath: freely definable
+// - servicePath: unique name (Target role)
+// - objectPath: freely definable (Target role)
 func NewMediaFolder1(servicePath string, objectPath dbus.ObjectPath) (*MediaFolder1, error) {
 	a := new(MediaFolder1)
 	a.client = bluez.NewClient(
@@ -37,32 +37,8 @@ func NewMediaFolder1(servicePath string, objectPath dbus.ObjectPath) (*MediaFold
 	return a, nil
 }
 
-// NewMediaFolder1Controller create a new instance of MediaFolder1
-//
-// Args:
-// - objectPath: [variable prefix]/{hci0,hci1,...}/dev_XX_XX_XX_XX_XX_XX/playerX
-func NewMediaFolder1Controller(objectPath dbus.ObjectPath) (*MediaFolder1, error) {
-	a := new(MediaFolder1)
-	a.client = bluez.NewClient(
-		&bluez.Config{
-			Name:  "org.bluez",
-			Iface: MediaFolder1Interface,
-			Path:  dbus.ObjectPath(objectPath),
-			Bus:   bluez.SystemBus,
-		},
-	)
-	a.Properties = new(MediaFolder1Properties)
-
-	_, err := a.GetProperties()
-	if err != nil {
-		return nil, err
-	}
-	return a, nil
-}
-
 /*
-MediaFolder1 MediaFolder1 hierarchy
-
+MediaFolder1 BlueZ D-Bus MediaFolder API documentation
 */
 type MediaFolder1 struct {
 	client                 *bluez.Client
@@ -78,37 +54,21 @@ type MediaFolder1Properties struct {
 	lock sync.RWMutex `dbus:"ignore"`
 
 	/*
-		Attributes Item properties that should be included in the list.
+		Name Folder name:
 
-				Possible Values:
+		Possible values:
 
-					"title", "artist", "album", "genre",
-					"number-of-tracks", "number", "duration"
+		:"/Filesystem/...":
 
-				Default Value: All
-	*/
-	Attributes []string
+			Filesystem scope
 
-	/*
-		End Offset of the last item.
+		:"/NowPlaying/...":
 
-				Default value: NumbeOfItems
-	*/
-	End uint32
+			NowPlaying scope
 
-	/*
-			Name Folder name:
-
-					Possible values:
-						"/Filesystem/...": Filesystem scope
-						"/NowPlaying/...": NowPlaying scope
-
-					Note: /NowPlaying folder might not be listed if player
-					is stopped, folders created by Search are virtual so
-					once another Search is perform or the folder is
-					changed using ChangeFolder it will no longer be listed.
-
-		Filters
+		Note: /NowPlaying folder might not be listed if player is stopped,
+		folders created by Search are virtual so once another Search is perform
+		or the folder is changed using ChangeFolder it will no longer be listed.
 	*/
 	Name string
 
@@ -116,56 +76,16 @@ type MediaFolder1Properties struct {
 		NumberOfItems Number of items in the folder
 	*/
 	NumberOfItems uint32
-
-	/*
-		Start Offset of the first item.
-
-				Default value: 0
-	*/
-	Start uint32
 }
 
-//Lock access to properties
+// Lock access to properties
 func (p *MediaFolder1Properties) Lock() {
 	p.lock.Lock()
 }
 
-//Unlock access to properties
+// Unlock access to properties
 func (p *MediaFolder1Properties) Unlock() {
 	p.lock.Unlock()
-}
-
-// SetAttributes set Attributes value
-func (a *MediaFolder1) SetAttributes(v []string) error {
-	return a.SetProperty("Attributes", v)
-}
-
-// GetAttributes get Attributes value
-func (a *MediaFolder1) GetAttributes() ([]string, error) {
-	v, err := a.GetProperty("Attributes")
-	if err != nil {
-		return []string{}, err
-	}
-	return v.Value().([]string), nil
-}
-
-// SetEnd set End value
-func (a *MediaFolder1) SetEnd(v uint32) error {
-	return a.SetProperty("End", v)
-}
-
-// GetEnd get End value
-func (a *MediaFolder1) GetEnd() (uint32, error) {
-	v, err := a.GetProperty("End")
-	if err != nil {
-		return uint32(0), err
-	}
-	return v.Value().(uint32), nil
-}
-
-// SetName set Name value
-func (a *MediaFolder1) SetName(v string) error {
-	return a.SetProperty("Name", v)
 }
 
 // GetName get Name value
@@ -177,28 +97,9 @@ func (a *MediaFolder1) GetName() (string, error) {
 	return v.Value().(string), nil
 }
 
-// SetNumberOfItems set NumberOfItems value
-func (a *MediaFolder1) SetNumberOfItems(v uint32) error {
-	return a.SetProperty("NumberOfItems", v)
-}
-
 // GetNumberOfItems get NumberOfItems value
 func (a *MediaFolder1) GetNumberOfItems() (uint32, error) {
 	v, err := a.GetProperty("NumberOfItems")
-	if err != nil {
-		return uint32(0), err
-	}
-	return v.Value().(uint32), nil
-}
-
-// SetStart set Start value
-func (a *MediaFolder1) SetStart(v uint32) error {
-	return a.SetProperty("Start", v)
-}
-
-// GetStart get Start value
-func (a *MediaFolder1) GetStart() (uint32, error) {
-	v, err := a.GetProperty("Start")
 	if err != nil {
 		return uint32(0), err
 	}
@@ -343,12 +244,15 @@ func (a *MediaFolder1) UnwatchProperties(ch chan *bluez.PropertyChanged) error {
 }
 
 /*
-Search 			Return a folder object containing the search result.
-			To list the items found use the folder object returned
-			and pass to ChangeFolder.
-			Possible Errors: org.bluez.Error.NotSupported
-					 org.bluez.Error.Failed
+Search Return a folder object containing the search result.
 
+	To list the items found use the folder object returned and pass to
+	ChangeFolder.
+
+	Possible Errors:
+
+	:org.bluez.Error.NotSupported:
+	:org.bluez.Error.Failed:
 */
 func (a *MediaFolder1) Search(value string, filter map[string]interface{}) (dbus.ObjectPath, error) {
 	var val0 dbus.ObjectPath
@@ -357,11 +261,13 @@ func (a *MediaFolder1) Search(value string, filter map[string]interface{}) (dbus
 }
 
 /*
-ListItems 			Return a list of items found
-			Possible Errors: org.bluez.Error.InvalidArguments
-					 org.bluez.Error.NotSupported
-					 org.bluez.Error.Failed
+ListItems Return a list of items found
 
+	Possible Errors:
+
+	:org.bluez.Error.InvalidArguments:
+	:org.bluez.Error.NotSupported:
+	:org.bluez.Error.Failed:
 */
 func (a *MediaFolder1) ListItems(filter map[string]interface{}) ([]Item, error) {
 	val0 := []Item{}
@@ -370,15 +276,16 @@ func (a *MediaFolder1) ListItems(filter map[string]interface{}) ([]Item, error) 
 }
 
 /*
-ChangeFolder 			Change current folder.
-			Note: By changing folder the items of previous folder
-			might be destroyed and have to be listed again, the
-			exception is NowPlaying folder which should be always
-			present while the player is active.
-			Possible Errors: org.bluez.Error.InvalidArguments
-					 org.bluez.Error.NotSupported
-					 org.bluez.Error.Failed
+ChangeFolder Change current folder.
 
+	Note: By changing folder the items of previous folder might be destroyed
+	and have to be listed again, the exception is NowPlaying folder which
+	should be always present while the player is active.
+
+	Possible Errors:
+
+	:org.bluez.Error.InvalidArguments:
+	:org.bluez.Error.NotSupported:
 */
 func (a *MediaFolder1) ChangeFolder(folder dbus.ObjectPath) error {
 	return a.client.Call("ChangeFolder", 0, folder).Store()

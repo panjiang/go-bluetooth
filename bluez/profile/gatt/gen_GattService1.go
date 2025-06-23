@@ -37,15 +37,7 @@ func NewGattService1(objectPath dbus.ObjectPath) (*GattService1, error) {
 }
 
 /*
-GattService1 Service hierarchy
-
-GATT remote and local service representation. Object path for local services
-is freely definable.
-
-External applications implementing local services must register the services
-using GattManager1 registration method and must implement the methods and
-properties defined in GattService1 interface.
-
+GattService1 BlueZ D-Bus GattService API documentation
 */
 type GattService1 struct {
 	client                 *bluez.Client
@@ -66,24 +58,14 @@ type GattService1Properties struct {
 	Characteristics []dbus.ObjectPath `dbus:"emit"`
 
 	/*
-		Device Object path of the Bluetooth device the service
-				belongs to. Only present on services from remote
-				devices.
+		Device Object path of the Bluetooth device the service belongs to. Only
+		present on services from remote devices.
 	*/
 	Device dbus.ObjectPath `dbus:"ignore=IsService"`
 
 	/*
-		Handle Service handle. When available in the server it
-				would attempt to use to allocate into the database
-				which may fail, to auto allocate the value 0x0000
-				shall be used which will cause the allocated handle to
-				be set once registered.
-	*/
-	Handle uint16
-
-	/*
-		Includes Array of object paths representing the included
-				services of this service.
+		Includes Array of object paths representing the included services of this
+		service.
 	*/
 	Includes []dbus.ObjectPath `dbus:"omitEmpty"`
 
@@ -93,8 +75,8 @@ type GattService1Properties struct {
 	IsService bool `dbus:"ignore"`
 
 	/*
-		Primary Indicates whether or not this GATT service is a
-				primary service. If false, the service is secondary.
+		Primary Indicates whether or not this GATT service is a primary service. If
+		false, the service is secondary.
 	*/
 	Primary bool
 
@@ -104,12 +86,12 @@ type GattService1Properties struct {
 	UUID string
 }
 
-//Lock access to properties
+// Lock access to properties
 func (p *GattService1Properties) Lock() {
 	p.lock.Lock()
 }
 
-//Unlock access to properties
+// Unlock access to properties
 func (p *GattService1Properties) Unlock() {
 	p.lock.Unlock()
 }
@@ -135,20 +117,6 @@ func (a *GattService1) GetDevice() (dbus.ObjectPath, error) {
 		return dbus.ObjectPath(""), err
 	}
 	return v.Value().(dbus.ObjectPath), nil
-}
-
-// SetHandle set Handle value
-func (a *GattService1) SetHandle(v uint16) error {
-	return a.SetProperty("Handle", v)
-}
-
-// GetHandle get Handle value
-func (a *GattService1) GetHandle() (uint16, error) {
-	v, err := a.GetProperty("Handle")
-	if err != nil {
-		return uint16(0), err
-	}
-	return v.Value().(uint16), nil
 }
 
 // GetIncludes get Includes value

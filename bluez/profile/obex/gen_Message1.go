@@ -16,7 +16,7 @@ var Message1Interface = "org.bluez.obex.Message1"
 // NewMessage1 create a new instance of Message1
 //
 // Args:
-// - objectPath: [Session object path]/{message0,...}
+// - objectPath: [Session object path]/message{#}
 func NewMessage1(objectPath dbus.ObjectPath) (*Message1, error) {
 	a := new(Message1)
 	a.client = bluez.NewClient(
@@ -37,8 +37,7 @@ func NewMessage1(objectPath dbus.ObjectPath) (*Message1, error) {
 }
 
 /*
-Message1 Message hierarchy
-
+Message1 BlueZ D-Bus OBEX Message API documentation
 */
 type Message1 struct {
 	client                 *bluez.Client
@@ -74,11 +73,6 @@ type Message1Properties struct {
 	Protected bool
 
 	/*
-		Read Message read flag
-	*/
-	Read bool
-
-	/*
 		Recipient Message recipient name
 	*/
 	Recipient string
@@ -109,10 +103,18 @@ type Message1Properties struct {
 	Sent bool
 
 	/*
+		Size Message size in bytes
+	*/
+	Size uint64
+
+	/*
 		Status Message reception status
 
-				Possible values: "complete",
-				"fractioned" and "notification"
+		Possible values:
+
+		:"complete":
+		:"fractioned":
+		:"notification":
 	*/
 	Status string
 
@@ -129,22 +131,22 @@ type Message1Properties struct {
 	/*
 		Type Message type
 
-				Possible values: "email", "sms-gsm",
-				"sms-cdma" and "mms"
+		Possible values:
 
-			uint64 Size [readonly]
-
-				Message size in bytes
+		:"email":
+		:"sms-gsm":
+		:"sms-cdma":
+		:"mms":
 	*/
 	Type string
 }
 
-//Lock access to properties
+// Lock access to properties
 func (p *Message1Properties) Lock() {
 	p.lock.Lock()
 }
 
-//Unlock access to properties
+// Unlock access to properties
 func (p *Message1Properties) Unlock() {
 	p.lock.Unlock()
 }
@@ -152,20 +154,6 @@ func (p *Message1Properties) Unlock() {
 // SetDeleted set Deleted value
 func (a *Message1) SetDeleted(v bool) error {
 	return a.SetProperty("Deleted", v)
-}
-
-// GetDeleted get Deleted value
-func (a *Message1) GetDeleted() (bool, error) {
-	v, err := a.GetProperty("Deleted")
-	if err != nil {
-		return false, err
-	}
-	return v.Value().(bool), nil
-}
-
-// SetFolder set Folder value
-func (a *Message1) SetFolder(v string) error {
-	return a.SetProperty("Folder", v)
 }
 
 // GetFolder get Folder value
@@ -177,11 +165,6 @@ func (a *Message1) GetFolder() (string, error) {
 	return v.Value().(string), nil
 }
 
-// SetPriority set Priority value
-func (a *Message1) SetPriority(v bool) error {
-	return a.SetProperty("Priority", v)
-}
-
 // GetPriority get Priority value
 func (a *Message1) GetPriority() (bool, error) {
 	v, err := a.GetProperty("Priority")
@@ -189,11 +172,6 @@ func (a *Message1) GetPriority() (bool, error) {
 		return false, err
 	}
 	return v.Value().(bool), nil
-}
-
-// SetProtected set Protected value
-func (a *Message1) SetProtected(v bool) error {
-	return a.SetProperty("Protected", v)
 }
 
 // GetProtected get Protected value
@@ -205,25 +183,6 @@ func (a *Message1) GetProtected() (bool, error) {
 	return v.Value().(bool), nil
 }
 
-// SetRead set Read value
-func (a *Message1) SetRead(v bool) error {
-	return a.SetProperty("Read", v)
-}
-
-// GetRead get Read value
-func (a *Message1) GetRead() (bool, error) {
-	v, err := a.GetProperty("Read")
-	if err != nil {
-		return false, err
-	}
-	return v.Value().(bool), nil
-}
-
-// SetRecipient set Recipient value
-func (a *Message1) SetRecipient(v string) error {
-	return a.SetProperty("Recipient", v)
-}
-
 // GetRecipient get Recipient value
 func (a *Message1) GetRecipient() (string, error) {
 	v, err := a.GetProperty("Recipient")
@@ -231,11 +190,6 @@ func (a *Message1) GetRecipient() (string, error) {
 		return "", err
 	}
 	return v.Value().(string), nil
-}
-
-// SetRecipientAddress set RecipientAddress value
-func (a *Message1) SetRecipientAddress(v string) error {
-	return a.SetProperty("RecipientAddress", v)
 }
 
 // GetRecipientAddress get RecipientAddress value
@@ -247,11 +201,6 @@ func (a *Message1) GetRecipientAddress() (string, error) {
 	return v.Value().(string), nil
 }
 
-// SetReplyTo set ReplyTo value
-func (a *Message1) SetReplyTo(v string) error {
-	return a.SetProperty("ReplyTo", v)
-}
-
 // GetReplyTo get ReplyTo value
 func (a *Message1) GetReplyTo() (string, error) {
 	v, err := a.GetProperty("ReplyTo")
@@ -259,11 +208,6 @@ func (a *Message1) GetReplyTo() (string, error) {
 		return "", err
 	}
 	return v.Value().(string), nil
-}
-
-// SetSender set Sender value
-func (a *Message1) SetSender(v string) error {
-	return a.SetProperty("Sender", v)
 }
 
 // GetSender get Sender value
@@ -275,11 +219,6 @@ func (a *Message1) GetSender() (string, error) {
 	return v.Value().(string), nil
 }
 
-// SetSenderAddress set SenderAddress value
-func (a *Message1) SetSenderAddress(v string) error {
-	return a.SetProperty("SenderAddress", v)
-}
-
 // GetSenderAddress get SenderAddress value
 func (a *Message1) GetSenderAddress() (string, error) {
 	v, err := a.GetProperty("SenderAddress")
@@ -287,11 +226,6 @@ func (a *Message1) GetSenderAddress() (string, error) {
 		return "", err
 	}
 	return v.Value().(string), nil
-}
-
-// SetSent set Sent value
-func (a *Message1) SetSent(v bool) error {
-	return a.SetProperty("Sent", v)
 }
 
 // GetSent get Sent value
@@ -303,9 +237,13 @@ func (a *Message1) GetSent() (bool, error) {
 	return v.Value().(bool), nil
 }
 
-// SetStatus set Status value
-func (a *Message1) SetStatus(v string) error {
-	return a.SetProperty("Status", v)
+// GetSize get Size value
+func (a *Message1) GetSize() (uint64, error) {
+	v, err := a.GetProperty("Size")
+	if err != nil {
+		return uint64(0), err
+	}
+	return v.Value().(uint64), nil
 }
 
 // GetStatus get Status value
@@ -317,11 +255,6 @@ func (a *Message1) GetStatus() (string, error) {
 	return v.Value().(string), nil
 }
 
-// SetSubject set Subject value
-func (a *Message1) SetSubject(v string) error {
-	return a.SetProperty("Subject", v)
-}
-
 // GetSubject get Subject value
 func (a *Message1) GetSubject() (string, error) {
 	v, err := a.GetProperty("Subject")
@@ -331,11 +264,6 @@ func (a *Message1) GetSubject() (string, error) {
 	return v.Value().(string), nil
 }
 
-// SetTimestamp set Timestamp value
-func (a *Message1) SetTimestamp(v string) error {
-	return a.SetProperty("Timestamp", v)
-}
-
 // GetTimestamp get Timestamp value
 func (a *Message1) GetTimestamp() (string, error) {
 	v, err := a.GetProperty("Timestamp")
@@ -343,11 +271,6 @@ func (a *Message1) GetTimestamp() (string, error) {
 		return "", err
 	}
 	return v.Value().(string), nil
-}
-
-// SetType set Type value
-func (a *Message1) SetType(v string) error {
-	return a.SetProperty("Type", v)
 }
 
 // GetType get Type value
@@ -497,17 +420,22 @@ func (a *Message1) UnwatchProperties(ch chan *bluez.PropertyChanged) error {
 }
 
 /*
-Get 			Download message and store it in the target file.
-			If an empty target file is given, a temporary file
-			will be automatically generated.
-			The returned path represents the newly created transfer,
-			which should be used to find out if the content has been
-			successfully transferred or if the operation fails.
-			The properties of this transfer are also returned along
-			with the object path, to avoid a call to GetProperties.
-			Possible errors: org.bluez.obex.Error.InvalidArguments
-					 org.bluez.obex.Error.Failed
+Get Download message and store it in the target file.
 
+	If an empty target file is given, a temporary file will be automatically
+	generated.
+
+	The returned path represents the newly created transfer, which should be
+	used to find out if the content has been successfully transferred or if
+	the operation fails.
+
+	The properties of this transfer are also returned along with the object
+	path, to avoid a call to GetProperties, see
+	**org.bluez.obex.Transfer(5)** for the possible list of properties.
+
+	Possible errors:
+
+	:org.bluez.obex.Error.InvalidArguments:
 */
 func (a *Message1) Get(targetfile string, attachment bool) (dbus.ObjectPath, map[string]interface{}, error) {
 	var val0 dbus.ObjectPath
